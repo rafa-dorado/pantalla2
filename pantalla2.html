@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timón - Quién es Quién Histórico</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #0c0805;
+            background-image: radial-gradient(circle, #26180f 0%, #0c0805 100%);
+            color: #ebdcb9;
+            font-family: 'Times New Roman', Times, serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            padding: 15px;
+        }
+
+        .interfaz-contenedor {
+            width: 100%;
+            height: 100%;
+            max-width: 1400px;
+            max-height: 850px;
+            background-color: #1a100a;
+            border: 3px double #78522e;
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.95), inset 0 0 30px rgba(120,82,46,0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        h1 {
+            color: #c49a45;
+            font-size: 1.6rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid #78522e;
+            padding-bottom: 5px;
+            height: 40px;
+        }
+
+        /* Bloqueo Inicial */
+        .pantalla-bloqueada {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            gap: 20px;
+            text-align: center;
+        }
+
+        .pantalla-bloqueada h2 {
+            color: #a63232;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .caja-entrada {
+            background-color: #110a06;
+            border: 1px solid #78522e;
+            color: #ebdcb9;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 1.3rem;
+            padding: 10px 15px;
+            text-align: center;
+            width: 280px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .oculto {
+            display: none !important;
+        }
+
+        /* Estructura del Juego Abierto */
+        .seccion-explicativa {
+            background-color: #110a06;
+            border: 1px solid #4a321c;
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+
+        .seccion-explicativa h2 {
+            color: #c49a45;
+            font-size: 1rem;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        p.instrucciones {
+            color: #c2b299;
+            text-align: justify;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .panel-notificaciones {
+            width: 100%;
+            height: 38px;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 0.95rem;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+
+        .notificacion-error {
+            background-color: #2a1111;
+            border: 1px solid #7a3131;
+            color: #ff9e9e;
+        }
+
+        /* Interfaz Quién es Quién */
+        .tablero-juego {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            min-height: 0;
+        }
+
+        .banco-nombres {
+            width: 280px;
+            background-color: #110a06;
+            border: 1px solid #4a321c;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .nombre-item {
+            background-color: #d9c296;
+            background-image: linear-gradient(135deg, #e3cfab 0%, #c4aa7c 100%);
+            color: #1c120c;
+            padding: 12px;
+            border: 1px solid #8c7146;
+            cursor: grab;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-align: center;
+            box-shadow: 3px 3px 5px rgba(0,0,0,0.5);
+        }
+
+        .nombre-item:active {
+            cursor: grabbing;
+        }
+
+        .galeria-retratos {
+            flex: 1;
+            background-color: #e3cca1;
+            background-image: url('https://transparenttextures.com');
+            border: 2px solid #54371e;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 15px;
+            box-shadow: inset 0 0 50px rgba(74,48,25,0.6);
+        }
+
+        .marco-personaje {
+            background-color: rgba(26, 16, 10, 0.85);
+            border: 3px double #78522e;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        /* Siluetas vectoriales integradas en CSS para evitar fallos de carga */
+        .svg-retrato {
+            width: 100%;
+            height: 140px;
+            border: 1px solid #54371e;
+            background-color: #0c0805;
+        }
+
+        .descripcion-personaje {
+            font-size: 0.8rem;
+            color: #ebdcb9;
+            text-align: center;
+            line-height: 1.3;
+            font-style: italic;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hueco-identidad {
+            width: 100%;
+            height: 38px;
+            border: 1px dashed #ebdcb9;
+            background-color: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .hueco-identidad.dragover {
+            background-color: rgba(196, 154, 69, 0.2);
+            border-style: solid;
+        }
+
+        .nombre-colocado {
+            background-color: #422d1b;
+            color: #f2e6ce;
+            padding: 6px;
+            border: 1px solid #1f1209;
+            font-size: 0.85rem;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+            font-weight: bold;
+        }
+
+        .contenedor-boton {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            height: 40px;
+        }
+
+        /* Éxito de la Pantalla */
+        .pantalla-exito {
+            width: 100%;
+            height: 100%;
+            background-color: #0d1a0e;
+            border: 1px solid #3b7a42;
+            padding: 40px;
+            text-align: center;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .pantalla-exito h2 {
+            color: #62c46e;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .pantalla-exito p {
+            font-size: 1.1rem;
+            color: #c2b299;
+            max-width: 800px;
+            line-height: 1.5;
+        }
+
+        .codigo-recompensa {
+            display: inline-block;
+            background-color: #050a05;
+            color: #62c46e;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 2.5rem;
+            padding: 15px 40px;
+            letter-spacing: 5px;
+            border: 1px solid #244d28;
+            box-shadow: 0 0 15px rgba(98, 196, 110, 0.2);
+            margin: 10px 0;
+        }
+
+        .pergamino-pista {
+            background-color: #17110a;
+            border: 1px dashed #78522e;
+            padding: 20px;
+            border-radius: 4px;
+            font-style: italic;
+            color: #ebdcb9;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="interfaz-contenedor">
+        <!-- SECCIÓN 1: PANEL DE BLOQUEO DE SEGURIDAD -->
+        <div class="pantalla-bloqueada" id="bloque-candado">
+            <h2>Acceso Denegado: Terminal del Timón</h2>
+            <p>Este sistema requiere la validación del santo y seña comercial obtenido en el Escritorio:</p>
+            <input type="text" class="caja-entrada" id="codigo-acceso" placeholder="INTRODUZCA CLAVE...">
+            <button class="nombre-item" style="width: auto; margin-top: 10px; padding: 10px 30px;" onclick="desbloquearPantalla()">Estabilizar Timón</button>
+        </div>
+
+        <!-- SECCIÓN 2: RETO QUIÊN ES QUIÊN -->
+        <h1 class="elementos-juego oculto" id="titulo-juego">Pantalla 5: Rostros de la Era de los Descubrimientos</h1>
+        
+        <div class="seccion-explicativa elementos-juego oculto" id="instrucciones-juego">
+            <h2>Instrucciones del Quién es Quién Histórico</h2>
+            <p class="instrucciones">
+                La navegación atlántica y la expansión global contaron con figuras cruciales cuyas decisiones políticas y hazañas náuticas redefinieron los mapas del siglo XV y XVI. <strong>Objetivo del juego:</strong> Identifique a cada uno de los personajes analizando su descripción biográfica y su silueta heráldica. Arrastre los nombres del panel izquierdo hacia el hueco inferior del retrato correcto. El sistema evaluará las identidades en conjunto al pulsar el botón de verificación.
+            </p>
+        </div>
+
+        <div class="panel-notificaciones notificacion-error" id="caja-notificacion"></div>
+
+        <div class="tablero-juego elementos-juego oculto" id="cuerpo-juego">
+            <div class="banco-nombres" id="lista-nombres">
+                <div class="nombre-item" draggable="true" id="nom-isabel" data-hueco="hueco-isabel">Isabel I de Castilla</div>
+                <div class="nombre-item" draggable="true" id="nom-magallanes" data-hueco="hueco-magallanes">Fernando de Magallanes</div>
+                <div class="nombre-item" draggable="true" id="nom-juan" data-hueco="hueco-juan">Juan II de Portugal</div>
+            </div>
+
+            <div class="galeria-retratos">
+                <!-- Personaje 1: Isabel la Católica (Iconografía de Corona Castellana) -->
+                <div class="marco-personaje">
+                    <svg class="svg-retrato" viewBox="0 0 100 100">
+                        <circle cx="50" cy="45" r="20" fill="#78522e" opacity="0.3"/>
+                        <path d="M30,80 Q50,55 70,80 Z" fill="#78522e" opacity="0.4"/>
+                        <path d="M35,30 L40,40 L50,28 L60,40 L65,30 L60,45 L40,45 Z" fill="#c49a45"/>
+                    </svg>
+                    <div class="descripcion-personaje">Reina que unificó los reinos peninsulares y financió de forma exclusiva la expedición de Colón.</div>
+                    <div class="hueco-identidad" id="hueco-isabel" data-id-hueco="hueco-isabel"></div>
+                </div>
+
+                <!-- Personaje 2: Juan II de Portugal (Iconografía de Escudo de Armas) -->
+                <div class="marco-personaje">
+                    <svg class="svg-retrato" viewBox="0 0 100 100">
+                        <circle cx="50" cy="45" r="20" fill="#78522e" opacity="0.3"/>
+                        <path d="M30,80 Q50,55 70,80 Z" fill="#78522e" opacity="0.4"/>
+                        <path d="M40,25 L60,25 L60,40 Q60,55 50,65 Q40,55 40,40 Z" fill="none" stroke="#c49a45" stroke-width="2"/>
+                        <line x1="50" y1="25" x2="50" y2="65" stroke="#c49a45" stroke-width="2"/>
+                    </svg>
+                    <div class="descripcion-personaje">Monarca luso que rechazó inicialmente a Colón y defendió la hegemonía comercial africana.</div>
+                    <div class="hueco-identidad" id="hueco-juan" data-id-hueco="hueco-juan"></div>
+                </div>
+
+                <!-- Personaje 3: Magallanes (Iconografía Náutica de Astrolabio) -->
+                <div class="marco-personaje">
+                    <svg class="svg-retrato" viewBox="0 0 100 100">
+                        <circle cx="50" cy="45" r="20" fill="#78522e" opacity="0.3"/>
+                        <path d="M30,80 Q50,55 70,80 Z" fill="#78522e" opacity="0.4"/>
+                        <circle cx="50" cy="45" r="15" fill="none" stroke="#c49a45" stroke-width="2"/>
+                        <line x1="30" y1="45" x2="70" y2="45" stroke="#c49a45" stroke-width="2"/>
+                        <line x1="50" y1="25" x2="50" y2="65" stroke="#c49a45" stroke-width="2"/>
+                    </svg>
+                    <div class="descripcion-personaje">Navegante que inició la primera expedición que lograría circunnavegar la Tierra.</div>
+                    <div class="hueco-identidad" id="hueco-magallanes" data-id-hueco="hueco-magallanes"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="contenedor-boton elementos-juego oculto" id="bloque-boton">
+            <button class="nombre-item" style="width: auto; padding: 0 40px;" onclick="validarIdentidades()">Verificar Identidades</button>
+        </div>
+
+        <div class="pantalla-exito" id="bloque-exito">
+            <h2>Identidades Históricas Verificadas</h2>
+            <p>Los líderes de la era moderna han sido reconocidos correctamente. Anote el santo y seña institucional:</p>
+            
+            <div class="codigo-recompensa">REYESCAT</div>
+            
+            <div class="pergamino-pista">
+                <strong>Enigma de localización de la Pantalla 6:</strong><br>
+                "El control político ha sido asegurado y el timón mantiene el rumbo fijado. Sin embargo, para defender la legalidad de estos títulos frente a los tratados internacionales con Portugal, se requiere consultar la legislación del Viejo Mundo y las bulas papales. Abandone el puesto de mando. Diríjase al rincón de estudio donde se guardan las crónicas del reino. El penúltimo sistema de juego aguarda su clave en la pantalla física que se halla al lado de la estantería de libros."
+            </div>
+            <p style="font-size: 0.95rem; color: #a19279;">Desplácese a ese punto del barco e introduzca el código para desbloquear el siguiente examen.</p>
+        </div>
+    </div>
+
+    <script>
+        const CODIGO_REQUERIDO_ENTRADA = "ESPECIAS";
+        const panelMensajes = document.getElementById('caja-notificacion');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const contenedor = document.getElementById('lista-nombres');
+            const elementos = Array.from(contenedor.children);
+            for (let i = elementos.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                contenedor.appendChild(elementos[j]);
+            }
+        });
+
+        function desbloquearPantalla() {
+            const claveIngresada = document.getElementById('codigo-acceso').value.trim().toUpperCase();
+
+            if (claveIngresada === CODIGO_REQUERIDO_ENTRADA) {
+                document.getElementById('bloque-candado').style.display = 'none';
+                const componentesJuego = document.querySelectorAll('.elementos-juego');
+                componentesJuego.forEach(elemento => elemento.classList.remove('oculto'));
+                panelMensajes.style.display = 'none';
+            } else {
+                panelMensajes.innerText = "Código de validación incorrecto. El terminal del Timón permanece bloqueado.";
+                panelMensajes.style.display = 'block';
+            }
+        }
+
+        const items = document.querySelectorAll('.nombre-item[draggable="true"]');
+        const huecos = document.querySelectorAll('.hueco-identidad');
+
+        items.forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', e.target.id);
+            });
+        });
+
+        huecos.forEach(hueco => {
+            hueco.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                hueco.classList.add('dragover');
+            });
+
+            hueco.addEventListener('dragleave', () => {
+                hueco.classList.remove('dragover');
+            });
+
+            hueco.addEventListener('drop', (e) => {
+                e.preventDefault();
+                hueco.classList.remove('dragover');
+                
+                const idItem = e.dataTransfer.getData('text/plain');
+                const elementoArrastrado = document.getElementById(idItem);
+
+                if (hueco.querySelector('.nombre-colocado')) {
+                    panelMensajes.innerText = "Este personaje ya cuenta con una identidad asignada.";
+                    panelMensajes.style.display = 'block';
+                    return;
+                }
+
+                if (elementoArrastrado) {
+                    panelMensajes.style.display = 'none';
+                    const contenedorVisual = document.createElement('div');
+                    contenedorVisual.className = 'nombre-colocado';
+                    contenedorVisual.id = 'colocado-' + idItem;
+                    contenedorVisual.setAttribute('data-origen-id', idItem);
+                    contenedorVisual.setAttribute('data-val-correcto', elementoArrastrado.getAttribute('data-hueco'));
+                    contenedorVisual.innerText = elementoArrastrado.innerText;
+                    
+                    hueco.appendChild(contenedorVisual);
+                    elementoArrastrado.style.display = 'none';
+                }
+            });
+        });
+
+        function validarIdentidades() {
+            const colocados = document.querySelectorAll('.nombre-colocado');
+
+            if (colocados.length < 3) {
+                panelMensajes.innerText = "Investigación inconclusa. Asigne las tres identidades a los retratos correspondientes antes de verificar.";
+                panelMensajes.style.display = 'block';
+                return;
+            }
+
+            let errores = 0;
+
+            colocados.forEach(item => {
+                const idHuecoActual = item.parentElement.getAttribute('data-id-hero'); // Fallback manual de control heráldico
+                const idHuecoPadre = item.parentElement.id;
+                const validacionCorrecta = item.getAttribute('data-val-correcto');
+
+                if (idHuecoPadre !== validacionCorrecta) {
+                    errores++;
+                    const idOriginal = item.getAttribute('data-origen-id');
+                    document.getElementById(idOriginal).style.display = 'block';
+                    item.remove();
+                }
+            });
+
+            if (errores > 0) {
+                panelMensajes.innerText = "Fallo de identificación crónica. Se han detectado errores en la asignación de rostros. Las identidades erróneas regresaron al panel.";
+                panelMensajes.style.display = 'block';
+            } else {
+                panelMensajes.style.display = 'none';
+                document.getElementById('titulo-juego').style.display = 'none';
+                document.getElementById('instrucciones-juego').style.display = 'none';
+                document.getElementById('cuerpo-juego').style.display = 'none';
+                document.getElementById('bloque-boton').style.display = 'none';
+                
+                document.getElementById('bloque-exito').style.display = 'flex';
+            }
+        }
+    </script>
+</body>
+</html>
